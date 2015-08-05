@@ -4,13 +4,16 @@ use strict;
 use Getopt::Long qw(GetOptions);
 use List::Util qw/shuffle/;
 
-my $usage_sentence = "perl $0 --file1 file1.motif --file2 file2.motif. Only if the motif is present in file 1 that the merge happen. Will had a pseudocount to missing values. !!!!! ";
+my $usage_sentence = "perl $0 --file1 file1.motif --file2 file2.motif OPTIONAL : --output 2 (default 12) --header 0 (default 1). Only if the motif is present in file 1 that the merge happen. Will had a pseudocount to missing values. output can be 1 (file1 counts only), 2 (file2 countd only) or 12 (both file1 and file2 counts) !!!!! ";
 my $file1;
 my $file2;
+my $output = 12;
+my $header =1;
 
 GetOptions ("file1=s" => \$file1,    # numeric
-	    "file2=s" => \$file2
-    ) or die $usage_sentence;
+	    "file2=s" => \$file2,
+	    "output=s" => \$output,
+	    "header=s" => \$header) or die $usage_sentence;
 
 if (!$file1 || !$file2) {die $usage_sentence;}
 
@@ -51,15 +54,22 @@ foreach my $line (<FILE2>)
 }
 close FILE2;
 
-my @generics = ($generic1, $generic2);
 
-print "motif";
-foreach my $e (@generics)
+my @generics;
+if ($output == 1){ @generics = ($generic1);}
+if ($output == 2){ @generics = ($generic2);}
+if ($output == 12){ @generics = ($generic1, $generic2);}
+
+
+if ($header ==1)
 {
-    print "\t$e";
+    print "motif";
+    foreach my $e (@generics)
+    {
+	print "\t$e";
+    }
+    print "\n";
 }
-print "\n";
-
 foreach my $motif (keys %result)
 {
     print "$motif";
